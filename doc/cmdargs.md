@@ -3,7 +3,7 @@
 usage: python3 -m clocdirtree.main [-h] [-la] --clocdir CLOCDIR --outdir
                                    OUTDIR [--exclude EXCLUDE [EXCLUDE ...]]
 
-dump cloc data nad navigate it as directory tree
+dump cloc data and navigate it as directory tree
 
 options:
   -h, --help            show this help message and exit

@@ -1,6 +1,21 @@
 # cloc-directory-tree
 
-Navigate cloc results as directory tree.
+Dump cloc data and navigate it as directory tree.
+
+
+Application generates static web page. For example, running it on self source code produces following view:
+
+[![main page](examples/project/cloc_tree/main-page-small.png "main page")](examples/project/cloc_tree/main-page.png)
+
+
+## Running
+
+[There](doc/cmdargs.md) is description of command line arguments.
+
+To run application simply execute followoing command:
+```
+python3 -m clocdirtree.main generate --clocdir <apth-to-source-code> --outdir <path-to-output-dir>
+```
 
 
 ## Installation
