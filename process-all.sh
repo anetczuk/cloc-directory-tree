@@ -13,10 +13,13 @@ echo "generating docs"
 echo "checking markdown files"
 "$SCRIPT_DIR"/tools/mdpreproc.py "$SCRIPT_DIR/README.md"
 
-echo "running tests under venv"
-# run tests in venv (it verifies required packages)
-"$SCRIPT_DIR"/tools/installvenv.sh --no-prompt
-"$SCRIPT_DIR"/venv/runtests.py
+echo "running tests"
+"$SCRIPT_DIR"/src/testclocdirtree/runtests.py
+
+# echo "running tests under venv"
+# # run tests in venv (it verifies required packages)
+# "$SCRIPT_DIR"/tools/installvenv.sh --no-prompt
+# "$SCRIPT_DIR"/venv/runtests.py
 
 if [ -f "$SCRIPT_DIR/examples/generate-all.sh" ]; then
 	echo "generating examples results"

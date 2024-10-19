@@ -11,7 +11,7 @@ import unittest
 import logging
 import io
 
-from clockdirtree import logger
+from clocdirtree import logger
 
 
 class LoggerTest(unittest.TestCase):

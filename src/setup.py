@@ -22,10 +22,10 @@ def read_list(file_path):
     return ret_list
 
 
-packages_list = find_packages(include=["clockdirtree", "clockdirtree.*"])
+packages_list = find_packages(include=["clocdirtree", "clocdirtree.*"])
 
 ## additional data to install
-packages_data: Dict[str, Any] = {"clockdirtree": []}
+packages_data: Dict[str, Any] = {"clocdirtree": []}
 
 ## additional scripts to install
 additional_scripts: List[str] = []
