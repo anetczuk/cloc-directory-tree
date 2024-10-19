@@ -13,6 +13,9 @@ import re
 import json
 import subprocess  # nosec
 
+# from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool as Pool
+
 from clocdirtree.io import read_file
 
 
@@ -53,17 +56,29 @@ def cloc_dirs(dirs_list, exclude_languages=None):
     """Run cloc against given list of directory paths."""
     _LOGGER.info("checking directories:\n%s", "\n".join(dirs_list))
     ret_dict = {}
-    total_items = len(dirs_list)
-    for index, dir_path in enumerate(dirs_list):
-        _LOGGER.info(f"{index + 1}/{total_items}: counting code on: {dir_path}")  # pylint: disable=W1203
-        lines, content = cloc_directory(dir_path, exclude_languages)
-        if lines < 1:
-            continue
-        ret_dict[dir_path] = [lines, content]
+    with Pool() as process_pool:
+    # with Pool(processes=1) as process_pool:
+        result_queue = []
+
+        for dir_path in dirs_list:
+            async_result = process_pool.apply_async(
+                cloc_directory, [dir_path, exclude_languages]
+            )
+            result_queue.append( (dir_path, async_result) )
+
+        # wait for results
+        for dir_path, async_result in result_queue:
+            lines, content = async_result.get()
+            if lines < 1:
+                continue
+            ret_dict[dir_path] = [lines, content]
+
     return ret_dict
 
 
 def cloc_directory(sources_dir, exclude_languages=None):
+    _LOGGER.info(f"counting code on: {sources_dir}")  # pylint: disable=W1203
+
     if exclude_languages is None:
         exclude_languages = []
 
