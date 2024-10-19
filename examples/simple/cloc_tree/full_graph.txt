@@ -1,0 +1,7 @@
+digraph G {
+"" [color=gray, fixedsize=true, label="\n18", shape=circle, width=8.0];
+"/mod1" [color=gray, fixedsize=true, label="/mod1\n12", shape=circle, width=6.531972647421808];
+"/mod2" [color=gray, fixedsize=true, label="/mod2\n6", shape=circle, width=4.618802153517006];
+"/mod1/submod1" [color=gray, fixedsize=true, label="/mod1/submod1\n12", shape=circle, width=6.531972647421808];
+"/mod2/submod2" [color=gray, fixedsize=true, label="/mod2/submod2\n6", shape=circle, width=4.618802153517006];
+}

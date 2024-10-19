@@ -8,11 +8,11 @@ SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
 
 SRC_DIR="$SCRIPT_DIR/../../src"
-RUN_DIR="$SCRIPT_DIR/src"
+RUN_DIR="$SCRIPT_DIR/../.."
 OUT_DIR="$SCRIPT_DIR/cloc_tree"
 
 
-"$SRC_DIR"/clocdirtree/main.py --clocdir "$RUN_DIR" --outdir "$OUT_DIR"
+"$SRC_DIR"/clocdirtree/main.py --clocdir "$RUN_DIR" --outdir "$OUT_DIR" --exclude "*/venv*" "*/.git*" "*/tmp*"
 
 
 result=$(checklink -r -q "$OUT_DIR/index.html")
