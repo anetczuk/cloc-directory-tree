@@ -21,7 +21,6 @@ import os
 import sys
 import argparse
 import logging
-import json
 
 from clocdirtree import logger
 from clocdirtree.clocparser import get_dirs_list, cloc_dirs
@@ -51,10 +50,9 @@ def process_cloc(args):
         dirs_list.append(item)
 
     cloc_data_dict = cloc_dirs(dirs_list)
-    cloc_data_dict = {item_key.removeprefix(run_dir): item_val for item_key, item_val in cloc_data_dict.items() }
-    
+    cloc_data_dict = {item_key.removeprefix(run_dir): item_val for item_key, item_val in cloc_data_dict.items()}
+
     multi_dict = split_to_multi_dict(cloc_data_dict)
-    print("xxx", multi_dict)
     graph_dir = os.path.join(out_dir, "graphs")
     os.makedirs(graph_dir, exist_ok=True)
     generate_from_multidict(multi_dict, graph_dir)
@@ -133,7 +131,7 @@ Project is distributed under the BSD 3-Clause license.
 </body>
 </html>
 """
-    out_file = os.path.join(out_dir, f"index.html")
+    out_file = os.path.join(out_dir, "index.html")
     write_file(out_file, content)
 
 
@@ -174,16 +172,26 @@ Project is distributed under the BSD 3-Clause license.
         .backsection {{
             margin-bottom: 12px;
         }}
+
+        .graphsection {{
+            margin-bottom: 12px;
+        }}
+
+        .graphsection img {{
+        }}
+
+        .clocsection {{
+            float: left;
+            margin-bottom: 12px;
+        }}
     </style>
 </head>
 <body>
     <div class="backsection"><a href="../index.html">Back to Index</a></div>
-    <div>
+    <div class="graphsection">
 {img_content}
     </div>
-    <pre>
-{cloc_summary}
-    </pre>
+    <pre class="clocsection">{cloc_summary}</pre>
 </body>
 </html>
 """

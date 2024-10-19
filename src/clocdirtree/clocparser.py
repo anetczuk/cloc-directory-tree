@@ -57,14 +57,12 @@ def cloc_dirs(dirs_list, exclude_languages=None):
     _LOGGER.info("checking directories:\n%s", "\n".join(dirs_list))
     ret_dict = {}
     with Pool() as process_pool:
-    # with Pool(processes=1) as process_pool:
+        # with Pool(processes=1) as process_pool:
         result_queue = []
 
         for dir_path in dirs_list:
-            async_result = process_pool.apply_async(
-                cloc_directory, [dir_path, exclude_languages]
-            )
-            result_queue.append( (dir_path, async_result) )
+            async_result = process_pool.apply_async(cloc_directory, [dir_path, exclude_languages])
+            result_queue.append((dir_path, async_result))
 
         # wait for results
         for dir_path, async_result in result_queue:
@@ -90,6 +88,9 @@ def cloc_directory(sources_dir, exclude_languages=None):
         result = subprocess.run(["cloc", "--sum-one", sources_dir], capture_output=True, check=True)  # nosec
 
     output = result.stdout.decode("utf-8")
+    output = output.splitlines()
+    output = output[1:]
+    output = "\n".join(output)
 
     ## _LOGGER.info( "cloc output:\n%s", output )
 
