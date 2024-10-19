@@ -59,6 +59,11 @@ def process_cloc(args):
 
     generate_page_index(out_dir, "graphs/_.html")
 
+    # data_dict = {item_key: item_val[0] for item_key, item_val in cloc_data_dict.items()}
+    # graph = generate_graph(data_dict)
+    # out_file = os.path.join(out_dir, "full_graph.txt")
+    # graph.writeRAW(out_file)
+
 
 def generate_from_multidict(multi_dict, out_graph_dir, key_prefix_list=None, key_value=None):
     if key_prefix_list is None:
@@ -145,6 +150,8 @@ def generate_page_content(path_prefix, cloc_summary, out_graph_dir):
         <img src="{path_prefix}.png" alt="graph" usemap="#{path_prefix}">
 {map_content}
 """
+    else:
+        img_content = "no subdirs with results"
 
     content = f"""\
 <!DOCTYPE HTML>
@@ -156,7 +163,7 @@ Project is distributed under the BSD 3-Clause license.
 <head>
     <title>cloc view</title>
     <style>
-        body {{  padding: 24;
+        body {{
                 background-color: #bbbbbb;
              }}
 
@@ -206,7 +213,7 @@ Project is distributed under the BSD 3-Clause license.
 def main():
     parser = argparse.ArgumentParser(
         prog="python3 -m clocdirtree.main",
-        description="dump cloc data nad navigate it as directory tree",
+        description="dump cloc data and navigate it as directory tree",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("-la", "--logall", action="store_true", help="Log all messages")

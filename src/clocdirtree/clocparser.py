@@ -61,7 +61,7 @@ def cloc_dirs(dirs_list, exclude_languages=None):
         result_queue = []
 
         for dir_path in dirs_list:
-            async_result = process_pool.apply_async(cloc_directory, [dir_path, exclude_languages])
+            async_result = process_pool.apply_async(cloc_directory, [dir_path, "raw", exclude_languages])
             result_queue.append((dir_path, async_result))
 
         # wait for results
@@ -74,51 +74,75 @@ def cloc_dirs(dirs_list, exclude_languages=None):
     return ret_dict
 
 
-def cloc_directory(sources_dir, exclude_languages=None):
+def cloc_directory(sources_dir, mode, exclude_languages=None):
     _LOGGER.info(f"counting code on: {sources_dir}")  # pylint: disable=W1203
 
-    if exclude_languages is None:
-        exclude_languages = []
+    common = ["cloc", "--sum-one"]
+    if mode == "raw":
+        # do nothing
+        pass
+    elif mode == "json":
+        common.append("--json")
+    else:
+        raise RuntimeError(f"unhandled mode: '{mode}'")
 
     if os.path.islink(sources_dir):
-        result = subprocess.run(  # nosec
-            ["cloc", "--sum-one", "--follow-links", sources_dir], capture_output=True, check=True
-        )
+        common.extend(["--follow-links", sources_dir])
+        result = subprocess.run(common, capture_output=True, check=True)  # nosec
     else:
-        result = subprocess.run(["cloc", "--sum-one", sources_dir], capture_output=True, check=True)  # nosec
+        common.extend([sources_dir])
+        result = subprocess.run(common, capture_output=True, check=True)  # nosec
 
     output = result.stdout.decode("utf-8")
-    output = output.splitlines()
-    output = output[1:]
-    output = "\n".join(output)
 
-    ## _LOGGER.info( "cloc output:\n%s", output )
+    # _LOGGER.info( "cloc output:\n%s", output )
 
-    overall_code = parse_code(output)
-    exclude_sum = 0
-    for item in exclude_languages:
-        exclude_sum += parse_code(output, item)
-    return overall_code - exclude_sum, output
+    return parse_cloc_output(output, mode, exclude_languages)
 
 
-def parse_cloc_file(file_path, language="SUM:", ignore=None):
-    if ignore is None:
-        ignore = []
+def parse_cloc_file(file_path, ignore=None):
     try:
         content = read_file(file_path)
-        language_lines = parse_code(content, language=language)
-        ignore_sum = 0
-        for ignore_item in ignore:
-            ignore_lines = parse_code(content, language=ignore_item)
-            if ignore_lines > 0:
-                ignore_sum += ignore_lines
-        return language_lines - ignore_sum
+        return parse_cloc_output(content, "raw", ignore)
+
     except BaseException:
         _LOGGER.error("error while loading file: %s content:\n%s", file_path, content)
         raise
 
 
-def parse_code(content, language="SUM:"):
+def parse_cloc_output(content, mode="raw", exclude_languages=None):
+    if exclude_languages is None:
+        exclude_languages = []
+
+    output = content
+    overall_code = 0
+    exclude_sum = 0
+
+    if mode == "raw":
+        output = output.splitlines()
+        output = output[1:]
+        output = "\n".join(output)
+
+        overall_code = parse_cloc_raw(output)
+        for item in exclude_languages:
+            exclude_sum += parse_cloc_raw(output, item)
+
+    elif mode == "json":
+        output = json.loads(output)
+        overall_code = parse_cloc_json(output)
+        for item in exclude_languages:
+            exclude_sum += parse_cloc_json(output, item)
+
+    else:
+        raise RuntimeError(f"unhandled mode: '{mode}'")
+
+    return overall_code - exclude_sum, output
+
+
+def parse_cloc_raw(content, language="SUM"):
+    # if language == "SUM":
+    #     language += ":"
+
     for line in content.splitlines():
         if len(line) < 1:
             continue
@@ -135,3 +159,8 @@ def parse_code(content, language="SUM:"):
                 continue
             return int(result[3])
     return -1
+
+
+def parse_cloc_json(content_dict, language="SUM"):
+    lang_dict = content_dict[language]
+    return lang_dict["code"]
