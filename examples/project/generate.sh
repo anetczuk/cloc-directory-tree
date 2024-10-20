@@ -30,7 +30,7 @@ echo "no broken links found"
 ## generate image from html
 echo -e "\ntaking screenshots"
 
-PAGE_PATH="$OUT_DIR/graphs/_.html"
+PAGE_PATH="$OUT_DIR/graphs/index.html"
 if [ -f "$PAGE_PATH" ]; then
 	OUT_IMG_PATH="$OUT_DIR/main-page.png"
     cutycapt --url=file://"$PAGE_PATH" --out="$OUT_IMG_PATH"
@@ -38,6 +38,9 @@ if [ -f "$PAGE_PATH" ]; then
     convert -bordercolor \#BBBBBB -border 20 "$OUT_IMG_PATH" "$OUT_IMG_PATH"
     convert "$OUT_IMG_PATH" -strip "$OUT_IMG_PATH"
 	exiftool -overwrite_original -all= "$OUT_IMG_PATH"
+else
+	echo "unable to find $PAGE_PATH"
+	exit 1
 fi
 
 
