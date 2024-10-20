@@ -142,6 +142,16 @@ def generate_page_content(directory, path_prefix, cloc_summary, out_graph_dir):
     map_path = os.path.join(out_graph_dir, f"{path_prefix}.map")
     map_content = read_file(map_path)
 
+    path_links_content = ""
+    dir_items = directory.split("/")
+    dir_items_len = len(dir_items)
+    for index in range(0, dir_items_len):
+        dir_item = dir_items[index]
+        item_file = "_".join(dir_items[: index + 1]) + ".html"
+        path_links_content += f""" <a href="{item_file}">{dir_item}</a> /"""
+    if path_links_content:
+        path_links_content = path_links_content[:-1]
+
     img_content = ""
     if map_content:
         img_content = f"""\
@@ -187,8 +197,7 @@ Project is distributed under the BSD 3-Clause license.
     </style>
 </head>
 <body>
-    <div class="section"><a href="../index.html">Back to Index</a></div>
-    <div class="section">{directory}</div>
+    <div class="section">Directory: {path_links_content}</div>
     <div class="graphsection section">
 {img_content}
     </div>
