@@ -50,11 +50,15 @@ def process_cloc(args):
         dirs_list.append(item)
 
     cloc_params_dict = {}
-    clockexclude = [item.replace("*", ".*") for item in args.exclude]
-    if clockexclude:
+    cloc_exclude = [item.replace("*", ".*") for item in args.exclude]
+    if cloc_exclude:
         cloc_params_dict["--fullpath"] = None
-        cloc_params_dict["--not-match-d"] = "|".join(clockexclude)
-        cloc_params_dict["--not-match-f"] = "|".join(clockexclude)
+        cloc_params_dict["--not-match-d"] = "|".join(cloc_exclude)
+        cloc_params_dict["--not-match-f"] = "|".join(cloc_exclude)
+
+    cloc_include_langs = ",".join(args.include_lang)
+    if cloc_include_langs:
+        cloc_params_dict["--include-lang"] = cloc_include_langs
 
     cloc_data_dict = cloc_dirs(dirs_list, cloc_params_dict=cloc_params_dict)
     cloc_data_dict = {item_key.removeprefix(run_dir): item_val for item_key, item_val in cloc_data_dict.items()}
@@ -228,7 +232,13 @@ def main():
         "--exclude",
         nargs="+",
         default=[],
-        help="Space separated list of directories to exclude. e.g. --exclude '/usr/*' '*/tmp/*'",
+        help="Space separated list of files and directories to exclude. e.g. --exclude '/usr/*' '*/tmp/*'",
+    )
+    parser.add_argument(
+        "--include-lang",
+        nargs="+",
+        default=[],
+        help="Space separated list of languages to include.",
     )
 
     ## =================================================

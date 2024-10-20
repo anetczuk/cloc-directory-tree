@@ -2,6 +2,7 @@
 ```
 usage: python3 -m clocdirtree.main [-h] [-la] --clocdir CLOCDIR --outdir
                                    OUTDIR [--exclude EXCLUDE [EXCLUDE ...]]
+                                   [--include-lang INCLUDE_LANG [INCLUDE_LANG ...]]
 
 dump cloc data and navigate it as directory tree
 
@@ -11,6 +12,10 @@ options:
   --clocdir CLOCDIR     Directory to analyze by 'cloc' (default: )
   --outdir OUTDIR       Output directory (default: )
   --exclude EXCLUDE [EXCLUDE ...]
-                        Space separated list of directories to exclude. e.g.
-                        --exclude '/usr/*' '*/tmp/*' (default: [])
+                        Space separated list of files and directories to
+                        exclude. e.g. --exclude '/usr/*' '*/tmp/*' (default:
+                        [])
+  --include-lang INCLUDE_LANG [INCLUDE_LANG ...]
+                        Space separated list of languages to include.
+                        (default: [])
 ```

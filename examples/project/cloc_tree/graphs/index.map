@@ -1,10 +1,10 @@
 <map id="index" name="index">
 <area shape="circle" id="node1" href="index_src.html" title="node: src
-696" alt="" coords="1165,909,302"/>
+705" alt="" coords="1186,909,303"/>
 <area shape="circle" id="node2" href="index_tools.html" title="node: tools
-422" alt="" coords="1099,240,234"/>
+422" alt="" coords="1117,288,235"/>
 <area shape="circle" id="node3" href="index_doc.html" title="node: doc
-70" alt="" coords="653,134,95"/>
+80" alt="" coords="671,107,102"/>
 <area shape="circle" id="node4" href="index_examples.html" title="node: examples
-1131" alt="" coords="389,704,384"/>
+1131" alt="" coords="389,703,384"/>
 </map>

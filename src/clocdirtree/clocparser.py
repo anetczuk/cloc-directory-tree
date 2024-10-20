@@ -62,7 +62,7 @@ def cloc_dirs(dirs_list, exclude_languages=None, cloc_params_dict=None):
 
         for dir_path in dirs_list:
             async_result = process_pool.apply_async(
-                cloc_directory, [dir_path, "raw", exclude_languages, cloc_params_dict]
+                execute_cloc, [dir_path, "raw", exclude_languages, cloc_params_dict]
             )
             result_queue.append((dir_path, async_result))
 
@@ -76,7 +76,7 @@ def cloc_dirs(dirs_list, exclude_languages=None, cloc_params_dict=None):
     return ret_dict
 
 
-def cloc_directory(sources_dir, mode, exclude_languages=None, cloc_params_dict=None):
+def execute_cloc(sources_dir, mode, exclude_languages=None, cloc_params_dict=None):
     _LOGGER.info(f"counting code on: {sources_dir}")  # pylint: disable=W1203
 
     command = ["cloc", "--sum-one", "--hide-rate"]
