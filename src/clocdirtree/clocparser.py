@@ -52,7 +52,7 @@ def get_dirs_list(start_dir, recursive=False):
     return dirs_list
 
 
-def cloc_dirs(dirs_list, exclude_languages=None, cloc_params_dict=None):
+def cloc_dirs(dirs_list, cloc_params_dict=None):
     """Run cloc against given list of directory paths."""
     _LOGGER.info("checking directories:\n%s", "\n".join(dirs_list))
     ret_dict = {}
@@ -61,9 +61,7 @@ def cloc_dirs(dirs_list, exclude_languages=None, cloc_params_dict=None):
         result_queue = []
 
         for dir_path in dirs_list:
-            async_result = process_pool.apply_async(
-                execute_cloc, [dir_path, "raw", exclude_languages, cloc_params_dict]
-            )
+            async_result = process_pool.apply_async(execute_cloc, [dir_path, "raw", cloc_params_dict])
             result_queue.append((dir_path, async_result))
 
         # wait for results
@@ -76,7 +74,7 @@ def cloc_dirs(dirs_list, exclude_languages=None, cloc_params_dict=None):
     return ret_dict
 
 
-def execute_cloc(sources_dir, mode, exclude_languages=None, cloc_params_dict=None):
+def execute_cloc(sources_dir, mode, cloc_params_dict=None):
     _LOGGER.info(f"counting code on: {sources_dir}")  # pylint: disable=W1203
 
     command = ["cloc", "--sum-one", "--hide-rate"]
@@ -115,26 +113,22 @@ def execute_cloc(sources_dir, mode, exclude_languages=None, cloc_params_dict=Non
 
     # _LOGGER.info( "cloc output:\n%s", output )
 
-    return parse_cloc_output(output, mode, exclude_languages)
+    return parse_cloc_output(output, mode)
 
 
-def parse_cloc_file(file_path, ignore=None):
+def parse_cloc_file(file_path):
     try:
         content = read_file(file_path)
-        return parse_cloc_output(content, "raw", ignore)
+        return parse_cloc_output(content, "raw")
 
     except BaseException:
         _LOGGER.error("error while loading file: %s content:\n%s", file_path, content)
         raise
 
 
-def parse_cloc_output(content, mode="raw", exclude_languages=None):
-    if exclude_languages is None:
-        exclude_languages = []
-
+def parse_cloc_output(content, mode="raw"):
     output = content
     overall_code = 0
-    exclude_sum = 0
 
     if mode == "raw":
         # output = output.splitlines()
@@ -142,19 +136,15 @@ def parse_cloc_output(content, mode="raw", exclude_languages=None):
         # output = "\n".join(output)
 
         overall_code = parse_cloc_raw(output)
-        for item in exclude_languages:
-            exclude_sum += parse_cloc_raw(output, item)
 
     elif mode == "json":
         output = json.loads(output)
         overall_code = parse_cloc_json(output)
-        for item in exclude_languages:
-            exclude_sum += parse_cloc_json(output, item)
 
     else:
         raise RuntimeError(f"unhandled mode: '{mode}'")
 
-    return overall_code - exclude_sum, output
+    return overall_code, output
 
 
 def parse_cloc_raw(content, language="SUM"):

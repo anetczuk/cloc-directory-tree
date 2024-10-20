@@ -60,6 +60,10 @@ def process_cloc(args):
     if cloc_include_langs:
         cloc_params_dict["--include-lang"] = cloc_include_langs
 
+    cloc_exclude_langs = ",".join(args.exclude_lang)
+    if cloc_exclude_langs:
+        cloc_params_dict["--exclude-lang"] = cloc_exclude_langs
+
     cloc_data_dict = cloc_dirs(dirs_list, cloc_params_dict=cloc_params_dict)
     cloc_data_dict = {item_key.removeprefix(run_dir): item_val for item_key, item_val in cloc_data_dict.items()}
 
@@ -239,6 +243,12 @@ def main():
         nargs="+",
         default=[],
         help="Space separated list of languages to include.",
+    )
+    parser.add_argument(
+        "--exclude-lang",
+        nargs="+",
+        default=[],
+        help="Space separated list of languages to exclude.",
     )
 
     ## =================================================
