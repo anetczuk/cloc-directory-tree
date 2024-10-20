@@ -55,9 +55,11 @@ def process_cloc(args):
     multi_dict = split_to_multi_dict(cloc_data_dict)
     graph_dir = os.path.join(out_dir, "graphs")
     os.makedirs(graph_dir, exist_ok=True)
-    generate_from_multidict(multi_dict, graph_dir)
+    multi_dict_data_list = multi_dict[""]
+    key_prefix_list = ["index"]
+    generate_page_multidict(multi_dict_data_list, graph_dir, key_prefix_list)
 
-    generate_page_index(out_dir, "graphs/_.html")
+    generate_page_index(out_dir, "graphs/index.html")
 
     # data_dict = {item_key: item_val[0] for item_key, item_val in cloc_data_dict.items()}
     # graph = generate_graph(data_dict)
@@ -65,9 +67,10 @@ def process_cloc(args):
     # graph.writeRAW(out_file)
 
 
-def generate_from_multidict(multi_dict, out_graph_dir, key_prefix_list=None, key_value=None):
-    if key_prefix_list is None:
-        key_prefix_list = []
+def generate_page_multidict(multi_dict_data_list, out_graph_dir, key_prefix_list):
+    value_list = multi_dict_data_list[0]
+    cloc_summary = value_list[1]
+    multi_dict = multi_dict_data_list[1]
 
     graph_dict = {}
     for key, data_tuple in multi_dict.items():
@@ -76,9 +79,9 @@ def generate_from_multidict(multi_dict, out_graph_dir, key_prefix_list=None, key
             graph_dict[key] = val_list[0]
 
     base_path_prefix = "/".join(key_prefix_list)
-    if not base_path_prefix:
-        base_path_prefix = "/"
     path_prefix = prepare_filesystem_name(base_path_prefix)
+
+    _LOGGER.info("generating page: %s", path_prefix)
 
     if graph_dict:
         graph = generate_graph(graph_dict)
@@ -90,25 +93,13 @@ def generate_from_multidict(multi_dict, out_graph_dir, key_prefix_list=None, key
         set_node_html_attribs(graph, node_prefix)
         store_graph_to_html(graph, out_graph_dir)
 
-        cloc_summary = ""
-        if key_value:
-            cloc_summary = key_value[1]
-
-        generate_page_content(path_prefix, cloc_summary, out_graph_dir)
-
-    elif key_value:
-        cloc_summary = key_value[1]
-        generate_page_content(path_prefix, cloc_summary, out_graph_dir)
+    generate_page_content(base_path_prefix, path_prefix, cloc_summary, out_graph_dir)
 
     # go recursive
     for key, data_tuple in multi_dict.items():
-        data_value = data_tuple[0]
-        sub_dict = data_tuple[1]
-
         sub_list = key_prefix_list.copy()
         sub_list.append(key)
-
-        generate_from_multidict(sub_dict, out_graph_dir, sub_list, data_value)
+        generate_page_multidict(data_tuple, out_graph_dir, sub_list)
 
 
 def generate_page_index(out_dir, redirect_link):
@@ -137,10 +128,11 @@ Project is distributed under the BSD 3-Clause license.
 </html>
 """
     out_file = os.path.join(out_dir, "index.html")
+    _LOGGER.info("writing index page: %s", out_file)
     write_file(out_file, content)
 
 
-def generate_page_content(path_prefix, cloc_summary, out_graph_dir):
+def generate_page_content(directory, path_prefix, cloc_summary, out_graph_dir):
     map_path = os.path.join(out_graph_dir, f"{path_prefix}.map")
     map_content = read_file(map_path)
 
@@ -176,11 +168,7 @@ Project is distributed under the BSD 3-Clause license.
                     padding: 0px;
                  }}
 
-        .backsection {{
-            margin-bottom: 12px;
-        }}
-
-        .graphsection {{
+        .section {{
             margin-bottom: 12px;
         }}
 
@@ -189,16 +177,16 @@ Project is distributed under the BSD 3-Clause license.
 
         .clocsection {{
             float: left;
-            margin-bottom: 12px;
         }}
     </style>
 </head>
 <body>
-    <div class="backsection"><a href="../index.html">Back to Index</a></div>
-    <div class="graphsection">
+    <div class="section"><a href="../index.html">Back to Index</a></div>
+    <div class="section">{directory}</div>
+    <div class="graphsection section">
 {img_content}
     </div>
-    <pre class="clocsection">{cloc_summary}</pre>
+    <pre class="clocsection section">{cloc_summary}</pre>
 </body>
 </html>
 """
