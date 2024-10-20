@@ -13,7 +13,7 @@ OUT_DIR="$SCRIPT_DIR/cloc_tree"
 
 
 "$SRC_DIR"/clocdirtree/main.py --clocdir "$RUN_DIR" --outdir "$OUT_DIR" \
-							   --excludedir "*/venv*" "*/.git*" "*/tmp*"
+							   --exclude "*/venv*" "*/.git*" "*/tmp*"
 
 
 result=$(checklink -r -q "$OUT_DIR/index.html")

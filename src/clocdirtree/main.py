@@ -40,7 +40,7 @@ def process_cloc(args):
     run_dir = os.path.normpath(run_dir)
     out_dir = args.outdir
 
-    exclude_filter = ExcludeItemFilter(args.excludedir)
+    exclude_filter = ExcludeItemFilter(args.exclude)
     dirs_list = []
     potential_dirs_list = get_dirs_list(run_dir, recursive=True)
     potential_dirs_list.insert(0, run_dir)
@@ -50,10 +50,11 @@ def process_cloc(args):
         dirs_list.append(item)
 
     cloc_params_dict = {}
-    clockexclude = [item.replace("*", ".*") for item in args.excludedir]
+    clockexclude = [item.replace("*", ".*") for item in args.exclude]
     if clockexclude:
         cloc_params_dict["--fullpath"] = None
         cloc_params_dict["--not-match-d"] = "|".join(clockexclude)
+        cloc_params_dict["--not-match-f"] = "|".join(clockexclude)
 
     cloc_data_dict = cloc_dirs(dirs_list, cloc_params_dict=cloc_params_dict)
     cloc_data_dict = {item_key.removeprefix(run_dir): item_val for item_key, item_val in cloc_data_dict.items()}
@@ -224,10 +225,10 @@ def main():
     parser.add_argument("--clocdir", action="store", required=True, default="", help="Directory to analyze by 'cloc'")
     parser.add_argument("--outdir", action="store", required=True, default="", help="Output directory")
     parser.add_argument(
-        "--excludedir",
+        "--exclude",
         nargs="+",
         default=[],
-        help="Space separated list of directories to exclude. e.g. --excludedir '/usr/*' '*/tmp/*'",
+        help="Space separated list of directories to exclude. e.g. --exclude '/usr/*' '*/tmp/*'",
     )
 
     ## =================================================

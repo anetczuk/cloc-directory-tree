@@ -1,8 +1,7 @@
 ## <a name="main_help"></a> python3 -m clocdirtree.main --help
 ```
 usage: python3 -m clocdirtree.main [-h] [-la] --clocdir CLOCDIR --outdir
-                                   OUTDIR
-                                   [--excludedir EXCLUDEDIR [EXCLUDEDIR ...]]
+                                   OUTDIR [--exclude EXCLUDE [EXCLUDE ...]]
 
 dump cloc data and navigate it as directory tree
 
@@ -11,7 +10,7 @@ options:
   -la, --logall         Log all messages (default: False)
   --clocdir CLOCDIR     Directory to analyze by 'cloc' (default: )
   --outdir OUTDIR       Output directory (default: )
-  --excludedir EXCLUDEDIR [EXCLUDEDIR ...]
+  --exclude EXCLUDE [EXCLUDE ...]
                         Space separated list of directories to exclude. e.g.
-                        --excludedir '/usr/*' '*/tmp/*' (default: [])
+                        --exclude '/usr/*' '*/tmp/*' (default: [])
 ```
