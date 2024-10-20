@@ -79,7 +79,7 @@ def cloc_dirs(dirs_list, exclude_languages=None, cloc_params_dict=None):
 def cloc_directory(sources_dir, mode, exclude_languages=None, cloc_params_dict=None):
     _LOGGER.info(f"counting code on: {sources_dir}")  # pylint: disable=W1203
 
-    common = ["cloc", "--sum-one", "--hide-rate"]
+    command = ["cloc", "--sum-one", "--hide-rate"]
 
     if cloc_params_dict:
         cloc_params_list = []
@@ -87,23 +87,29 @@ def cloc_directory(sources_dir, mode, exclude_languages=None, cloc_params_dict=N
             cloc_params_list.append(key)
             if val is not None:
                 cloc_params_list.append(val)
-        common.extend(cloc_params_list)
+        command.extend(cloc_params_list)
 
     if mode == "raw":
         # do nothing
         pass
     elif mode == "json":
-        common.append("--json")
+        command.append("--json")
     else:
         raise RuntimeError(f"unhandled mode: '{mode}'")
 
     if os.path.islink(sources_dir):
-        common.extend(["--follow-links", sources_dir])
+        command.extend(["--follow-links", sources_dir])
     else:
-        common.extend([sources_dir])
+        command.extend([sources_dir])
 
-    _LOGGER.debug("starting cloc with parameters: %s", common)
-    result = subprocess.run(common, capture_output=True, check=True)  # nosec
+    _LOGGER.debug("starting cloc with parameters: %s", command)
+
+    try:
+        result = subprocess.run(command, capture_output=True, check=True)  # nosec
+    except subprocess.CalledProcessError as exc:
+        output = exc.stderr.decode("utf-8")
+        _LOGGER.error("cloc error: %s", output)
+        raise
 
     output = result.stdout.decode("utf-8")
 
