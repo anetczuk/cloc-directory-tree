@@ -52,7 +52,7 @@ def get_dirs_list(start_dir, recursive=False):
     return dirs_list
 
 
-def cloc_dirs(dirs_list, exclude_languages=None):
+def cloc_dirs(dirs_list, exclude_languages=None, cloc_params_dict=None):
     """Run cloc against given list of directory paths."""
     _LOGGER.info("checking directories:\n%s", "\n".join(dirs_list))
     ret_dict = {}
@@ -61,7 +61,9 @@ def cloc_dirs(dirs_list, exclude_languages=None):
         result_queue = []
 
         for dir_path in dirs_list:
-            async_result = process_pool.apply_async(cloc_directory, [dir_path, "raw", exclude_languages])
+            async_result = process_pool.apply_async(
+                cloc_directory, [dir_path, "raw", exclude_languages, cloc_params_dict]
+            )
             result_queue.append((dir_path, async_result))
 
         # wait for results
@@ -74,10 +76,19 @@ def cloc_dirs(dirs_list, exclude_languages=None):
     return ret_dict
 
 
-def cloc_directory(sources_dir, mode, exclude_languages=None):
+def cloc_directory(sources_dir, mode, exclude_languages=None, cloc_params_dict=None):
     _LOGGER.info(f"counting code on: {sources_dir}")  # pylint: disable=W1203
 
-    common = ["cloc", "--sum-one"]
+    common = ["cloc", "--sum-one", "--hide-rate"]
+
+    if cloc_params_dict:
+        cloc_params_list = []
+        for key, val in cloc_params_dict.items():
+            cloc_params_list.append(key)
+            if val is not None:
+                cloc_params_list.append(val)
+        common.extend(cloc_params_list)
+
     if mode == "raw":
         # do nothing
         pass
@@ -88,10 +99,11 @@ def cloc_directory(sources_dir, mode, exclude_languages=None):
 
     if os.path.islink(sources_dir):
         common.extend(["--follow-links", sources_dir])
-        result = subprocess.run(common, capture_output=True, check=True)  # nosec
     else:
         common.extend([sources_dir])
-        result = subprocess.run(common, capture_output=True, check=True)  # nosec
+
+    _LOGGER.debug("starting cloc with parameters: %s", common)
+    result = subprocess.run(common, capture_output=True, check=True)  # nosec
 
     output = result.stdout.decode("utf-8")
 
@@ -119,9 +131,9 @@ def parse_cloc_output(content, mode="raw", exclude_languages=None):
     exclude_sum = 0
 
     if mode == "raw":
-        output = output.splitlines()
-        output = output[1:]
-        output = "\n".join(output)
+        # output = output.splitlines()
+        # output = output[1:]
+        # output = "\n".join(output)
 
         overall_code = parse_cloc_raw(output)
         for item in exclude_languages:
