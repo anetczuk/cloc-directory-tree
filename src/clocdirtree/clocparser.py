@@ -135,7 +135,7 @@ def parse_cloc_output(content, mode="raw"):
         # output = output[1:]
         # output = "\n".join(output)
 
-        overall_code = parse_cloc_raw(output)
+        overall_code, output = parse_cloc_raw(output)
 
     elif mode == "json":
         output = json.loads(output)
@@ -151,7 +151,15 @@ def parse_cloc_raw(content, language="SUM"):
     # if language == "SUM":
     #     language += ":"
 
-    for line in content.splitlines():
+    content_lines = content.splitlines()
+    for index, line in enumerate(content_lines):
+        if line.startswith("----------"):
+            # found first line separator - discard lines before the separator
+            content_lines = content_lines[index:]
+            content = "\n".join(content_lines)
+            break
+
+    for line in content_lines:
         if len(line) < 1:
             continue
         if line.startswith(language):
@@ -165,8 +173,8 @@ def parse_cloc_raw(content, language="SUM"):
             if len(result) != 4:
                 _LOGGER.warning("invalid state for line: %s", line)
                 continue
-            return int(result[3])
-    return -1
+            return int(result[3]), content
+    return -1, content
 
 
 def parse_cloc_json(content_dict, language="SUM"):
