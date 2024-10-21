@@ -157,6 +157,7 @@ def generate_page_content(directory, path_prefix, cloc_summary, out_graph_dir):
     for index in range(0, dir_items_len):
         dir_item = dir_items[index]
         item_file = "_".join(dir_items[: index + 1]) + ".html"
+        item_file = prepare_filesystem_name(item_file)
         path_links_content += f""" <a href="{item_file}">{dir_item}</a> /"""
     if path_links_content:
         path_links_content = path_links_content[:-1]
