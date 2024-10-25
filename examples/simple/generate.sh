@@ -7,6 +7,14 @@ set -eu
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
 
+if [[ $* == *--venv* ]]; then
+	## run under venv
+	VENV_DIR="$SCRIPT_DIR/../../venv"
+	"$VENV_DIR"/activatevenv.sh "$0; exit"
+	exit 0
+fi
+
+
 SRC_DIR="$SCRIPT_DIR/../../src"
 RUN_DIR="$SCRIPT_DIR/src"
 OUT_DIR="$SCRIPT_DIR/cloc_tree"
@@ -15,8 +23,9 @@ OUT_DIR="$SCRIPT_DIR/cloc_tree"
 "$SRC_DIR"/clocdirtree/main.py --clocdir "$RUN_DIR" --outdir "$OUT_DIR"
 
 
-result=$(checklink -r -q "$OUT_DIR/index.html")
-if [[ "$result" != "" ]]; then
+BROKEN_LINKS=0
+result=$(checklink -r -q "$OUT_DIR/index.html" 2> /dev/null) || BROKEN_LINKS=1
+if [[ "$result" != "" || $BROKEN_LINKS -ne 0 ]]; then
 	echo "broken links found:"
 	echo "$result"
 	exit 1

@@ -22,7 +22,7 @@ if [ -d "$examples_dir" ]; then
     all_examples=$(find "$examples_dir" -type f -name "*.py")
 fi
 
-src_examples=$(find "$src_dir" -type f -name "*.py")
+src_examples=$(find "$src_dir" -type f -name "*.py" -not -path "$src_dir/build/*")
 
 
 echo "running mypy"

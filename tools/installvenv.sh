@@ -66,7 +66,7 @@ python3 -m venv "$VENV_DIR"
 ### creating venv start script
 
 # shellcheck disable=SC2016
-SCRIPT_CONTENT='#!/bin/bash
+ACTIVATE_VENV_CONTENT='#!/bin/bash
 
 ##
 ## File was generated automatically. Any change will be lost. 
@@ -116,11 +116,10 @@ rm $tmpfile
 '
 
 # shellcheck disable=SC2016
-SCRIPT_CONTENT="${SCRIPT_CONTENT//'$VENV_ROOT_DIR'/$VENV_DIR}"
-SCRIPT_PATH="$VENV_DIR/activatevenv.sh"
-START_VENV_SCRIPT_PATH="$SCRIPT_PATH"
-echo "$SCRIPT_CONTENT" > "$SCRIPT_PATH"
-chmod +x "$SCRIPT_PATH"
+ACTIVATE_VENV_CONTENT="${ACTIVATE_VENV_CONTENT//'$VENV_ROOT_DIR'/$VENV_DIR}"
+ACTIVATE_VENV_PATH="$VENV_DIR/activatevenv.sh"
+echo "$ACTIVATE_VENV_CONTENT" > "$ACTIVATE_VENV_PATH"
+chmod +x "$ACTIVATE_VENV_PATH"
 
 
 ## create shortcut script inside venv directory
@@ -152,8 +151,11 @@ create_venv_shortcut "$VENV_DIR/activatevenv.sh \"set -eu; $SRC_DIR/testclockdir
 
 
 ### install required packages
-echo "Installing dependencies"
-$START_VENV_SCRIPT_PATH "$SCRIPT_DIR/../src/install-deps.sh; exit"
+echo "Installing package"
+$ACTIVATE_VENV_PATH "$SCRIPT_DIR/../src/install-package.sh --system; exit"
+
+# echo "Installing dependencies"
+# $ACTIVATE_VENV_PATH "$SCRIPT_DIR/../src/install-deps.sh; exit"
 
 
 echo "to activate environment run: $VENV_DIR/activatevenv.sh"
